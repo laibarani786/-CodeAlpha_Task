@@ -3,6 +3,7 @@ import os
 from music21 import stream, note, midi
 import random
 import matplotlib.pyplot as plt
+from pathlib import Path  # Added for improved MIDI detection
 
 # ----------------------- PAGE CONFIG -----------------------
 st.set_page_config(page_title="🎵 AI Music Generation", layout="centered")
@@ -55,20 +56,21 @@ st.markdown('<p class="title">🎶 AI Music Generation Studio</p>', unsafe_allow
 st.markdown('<p class="subtitle">Generate melodies, visualize notes & listen instantly!</p>', unsafe_allow_html=True)
 st.write("---")
 
-# ----------------------- MIDI FOLDER HANDLING -----------------------
+# ----------------------- MIDI FILE DETECTION -----------------------
 base_dir = os.path.dirname(os.path.abspath(__file__))
-midi_folder = os.path.join(base_dir, "midi song")
+folders_to_search = [os.path.join(base_dir, "midi song"), base_dir]  # 'midi song' folder aur root folder
+midi_files = []
 
-if not os.path.exists(midi_folder):
-    os.makedirs(midi_folder)
-    st.warning("⚠️ Folder 'midi song' was missing, so I created it. Please add your .mid files inside it and refresh the app.")
-    st.stop()
-
-midi_files = [f for f in os.listdir(midi_folder) if f.endswith(".mid")]
+for folder in folders_to_search:
+    path = Path(folder)
+    if path.exists():
+        midi_files += [f.name for f in path.glob("*.mid")]
 
 if not midi_files:
-    st.warning("⚠️ No MIDI files found in 'midi song' folder. Please add some .mid files and refresh.")
+    st.warning("⚠️ No MIDI files found! Please add some .mid files and refresh the app.")
     st.stop()
+else:
+    st.success(f"✅ Found {len(midi_files)} MIDI files!")
 
 # ----------------------- FILE SELECTION -----------------------
 selected_file = st.selectbox("🎵 Select a MIDI song to inspire new music:", midi_files)
