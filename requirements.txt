@@ -1,6 +1,7 @@
-music21
+streamlit
 numpy
 tensorflow==2.13.0
 keras
 h5py
 tqdm
+mido
